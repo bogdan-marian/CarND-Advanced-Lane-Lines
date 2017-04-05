@@ -128,9 +128,6 @@ in order to decide where to reach for next line position. I'm using in this sear
 the previous defined search areas. If I'm not able to find the lanes Then calling
 find_lane()
 
-
-![alt text][image5]
-
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 The radius if the curvature is computed by find_curvature() method of the Lanes class referenced
