@@ -19,6 +19,7 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/01_camera_calibration.png "Undistorted"
 [image3]: ./output_images/03_pipe_line_result.png "Pipeline"
 [image4]: ./output_images/04_warp.png "Warp"
+[image6]: ./output_images/06_collored_lane.png "Colored"
 [video1]: ./project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
@@ -33,12 +34,12 @@ You're reading it!
 
 Because one of the classes in the jupiter notebook became really big I will
 add reference tags to the python code that can be easily searched in the
-notebook.  Examle `#ref_01_import_section`
+notebook.  Examle: The main imports used by this project are refferenced by the `#ref_01_import_section` tag at the top of the Advanced-Lane-Lines.ipyn file
 ### Camera Calibration
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-This step is handled by the `__init__(self)` method of the Camera class `ref_02_camera_calibration`.
+This step is handled by the `__init__(self)` method of the Camera class refferenced by `# ref_02_camera_calibration` tag.
 
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. At the end i call `cv2.calibrateCamera()` and keep inside the class the returned values
 ```
@@ -54,9 +55,9 @@ I applied this distortion correction to the test image and obtained this result:
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
-To demonstrate this step, I will describe how I apply the distortion correction to one an image.
+To demonstrate this step, I will describe how I apply the distortion correction to one image.
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I have created a function for this purpose named pipeline `ref_03_pipeline`
+I have created a function for this purpose named pipeline() referenced by `# ref_03_pipeline` tag
 
 I used a combination of color and gradient thresholds to generate a binary image.
 
@@ -69,11 +70,11 @@ This is the result:
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warp()`, witch can be located using `ref_04_worp_function`
-The `warper()` function takes as inputs an image (`img`), and it retunes the
-perpective transfor of the image.
+The code for my perspective transform includes a function called `warp()`, witch can be located using the `#ref_07_worp` tag
+The `warp()` function takes as inputs an image (`img`), and it fortunes the
+perspective transform of the image.
 
-The source and destination points are defined in the get_points() function `ref_05_points` and the points it returns are hard coded using
+The source and destination points are defined in the get_points() function `#ref_05_points`  and the points it returns are hard coded using the following snippet
 ```
     img_size = (img.shape[1], img.shape[0])
     src = np.float32(
@@ -103,17 +104,41 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+Lines class is the main class in my project when it comes to lane line identification
+and polynomial fitting. This class is referenced by #ref_08_lines_class tag.
+
+The Lines.find_lane(image) referenced by #ref_9_find_lane_lines tag is responsible of  
+finding lane lines in the processed images. This method takes in an image it
+performs the following steps
+* it creates a histogram of the image
+* it warps the imaged using warp() function
+* starting from the bottom it takes a histogram of the half of the image
+* based on the value of the histogram I set the window where I have to search for
+the left and write lane
+* I divide the warped image in 9 horizontal sections and start searching in the
+predefined small windows for the lane position
+*  If i find at least 50 good pixels in a search the I consider this good pixels
+and I set the mean of this pixels as the current position of the lane in that windows
+of search
+* I fit a second order polynomial to the left points and the write points. (#ref_10_fit_polynomial)
+
+Similar steps I'm doing also in the Lines.fast_find(image) method except
+that I'm not taking in the initial histogram of the half of the image
+in order to decide where to reach for next line position. I'm using in this search
+the previous defined search areas. If I'm not able to find the lanes Then calling
+find_lane()
+
 
 ![alt text][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+The radius if the curvature is computed by find_curvature() method of the Lanes class referenced
+by the #ref_11_radius tag.
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in Lines.draw_lines() method referenced by #ref_12_draw_lines.  Here is an example of my result on a test image:
 
 ![alt text][image6]
 
@@ -123,7 +148,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_images/project_result.mp4)
 
 ---
 
@@ -131,4 +156,7 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Te approach that I took it relies heavily on the instruction notes and code snippets from the course.
+The project as it is at the moment it will definitively fail when there are no lane lines available to be identified or when there is only one of them marked or on the road. If I ware going to pursue this project further I will start by addressing this problems first. Also considering
+a lane line if very strong curvature that show up curving left and write int the
+area where the code is analyzing will cause unpredictable values for the curvature.
